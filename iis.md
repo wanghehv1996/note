@@ -4,9 +4,9 @@
 
 1. install IIS on Win10
 
-ref:![Win10 IIS web server](https://blog.csdn.net/gameplayer097/article/details/83016112)
+ref:[Win10 IIS web server](https://blog.csdn.net/gameplayer097/article/details/83016112)
 
-default rootpath: `C:\inetpub\wwwroot`
+default rootpath is at `C:\inetpub\wwwroot`
 
 ### Add MIME type
 
