@@ -183,3 +183,90 @@ default rootpath is at `C:\inetpub\wwwroot`
 
 - jsEventListeners & jsEventListeners
   - format:`{"pid":5301,"tid":5318,"ts":354565003612,"ph":"I","cat":"disabled-by-default-devtools.timeline","name":"UpdateCounters","s":"t","tts":530432847,"args":{"data":{"documents":1,"nodes":58,"jsEventListeners":35,"jsHeapSizeUsed":7379624}}}`
+
+- Profiler GUI
+  - Interactions->Input
+    - Mouse Up/Down, Key Up/Down
+      - task name: InputLatency
+      - ph: F/S
+      - duration: task(ph=F).ts-task(ph=S).ts
+  - Interactions->Animation
+    - Animation
+      - task name: animation
+      - ph: F/S
+      - duration: task(ph=b).ts-task(ph=e).ts
+  - Timings
+    - First Paint(FP)
+      - task name: FirstPaint
+      - ph: R
+    - First Contentful Paint(FCP)
+      - task name: FirstContentPaint
+      - ph: R
+    - DOM Content Loaded(DCL)
+      - task name: MarkDOMContent
+      - ph: I 
+    - Onload Event(L)
+      - task name: markLoad
+      - ph: I
+  - Main
+    - Task
+      - task name: RunTask
+      - TODO:
+  - Raster/Rasterizer Thread 12345
+    - Rasterize Paint
+      - task name: RasterTask
+      - ph: B/E
+      - duration: task(ph=E).ts-task(ph=B).ts
+  - GPU
+    - GPU
+      - task name: GPUTask
+      - ph: X
+      - duration: task.dur
+  - Chrome_ChildIOThread
+    - Task
+      - task name: RunTask (note: only the task in `Renderer -> Chrome_ChildIOThread`)
+      - ph: X
+      - duration: task.dur
+  - Compositor/[pid]
+    - Task
+      - task name: RunTask (note: only the task in `Renderer -> Compositor` thread with corresponding [pid])
+      - ph: X
+      - duration: task.dur
+  - GPUMemoryTask
+    - Task
+      - task name: RunTask (note: only the task in `Renderer -> GPUMemoryThread`)
+      - ph: X
+      - duration: task.dur
+  - ThreadPoolServiceThread
+    - Task
+      - task name: RunTask (note: only the task in `Renderer -> ThreadPoolServiceThread`)
+      - ph: X
+      - duration: task.dur
+
+
+  - JS heap, Documents, Nodes, Listeners
+    - task name: UpdateCounters
+    - timestamp: task(ph=I).ts
+    - data: args.data
+  
+  - Network
+    - Network request
+      - task name: ResourceSendRequest / ResourceFinish (note: with same `requestId`)
+      - timestamp: ResourceSendRequest.ts
+      - duration: ResourceFinish.ts - ResourceSendRequest.ts
+      - detail:
+
+```
+    --ResourceSendRequest.ts
+    |
+    o--requestStart.ts
+    o
+    o
+    0--ResourceReceiveResponse.requestTime+ResourceReceiveResponse.receiveHeadersEnd
+    0
+    0
+    0
+    |--ResourceFinish.finishTime
+    |
+    --ResourceFinish.ts
+```
