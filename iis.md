@@ -186,7 +186,7 @@ default rootpath is at `C:\inetpub\wwwroot`
 
 - Profiler GUI
   - Interactions->Input
-    - Mouse Up/Down, Key Up/Down
+    - Mouse Up/Down/Leave, Key Up/Down
       - task name: InputLatency
       - ph: F/S
       - duration: task(ph=F).ts-task(ph=S).ts
