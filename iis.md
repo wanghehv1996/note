@@ -189,7 +189,8 @@ default rootpath is at `C:\inetpub\wwwroot`
     - Mouse Up/Down/Leave, Key Up/Down
       - task name: InputLatency
       - ph: F/S
-      - duration: task(ph=F).ts-task(ph=S).ts
+      - duration: task(ph=F).ts-task(ph=F).data.INPUT_EVENT_LATENCY_ORIGINAL_COMPONENT.time
+      - (note: Mouse Up/Down/Leave in thread BrowserMainThread/CompositorThread; Mouse Move in VizCompositorThread)
   - Interactions->Animation
     - Animation
       - task name: animation
@@ -201,6 +202,9 @@ default rootpath is at `C:\inetpub\wwwroot`
       - ph: R
     - First Contentful Paint(FCP)
       - task name: FirstContentPaint
+      - ph: R
+    - First Meaningful Paint(FMP)
+      - task name: firstMeaningfulPaint
       - ph: R
     - DOM Content Loaded(DCL)
       - task name: MarkDOMContent
