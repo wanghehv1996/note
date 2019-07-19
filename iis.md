@@ -173,20 +173,30 @@ default rootpath is at `C:\inetpub\wwwroot`
 
   - pending for = finishloading.ts-ResourceSendRequest.ts -->
 
-### snapshot
-- format: `{"pid":???,"tid":???,"ts":???,"ph":"O","cat":"disabled-by-default-devtools.screenshot","name":"Screenshot","id":"0x1","tts":???,"args":{"snapshot":"???"}}`
-- Image format: base64
+### Snapshot
+- Screenshot
+  - thread:
+  - task name: `Screenshot`
+  - ph: `O`
+  - image:
+    - `args -> snapshot` 
+    - Imageformat: base 64
 
-### metadata
-- format: `{"pid":???,"tid":???,"ts":???,"ph":"M","cat":"__metadata","name":"???","args":???}`
-- information: CPU number, process information, chrome library information, thread information
-  
-### profiler
-- format: `{"pid":???,"tid":???,"ts":???,"ph":"P","cat":"disabled-by-default-v8.cpu_profiler","name":"ProfileChunk","id":"???","tts":???,"args":{"data":{"cpuProfile":{"nodes":[{"callFrame":{"functionName":"???","url":"???","scriptId":?,"lineNumber":?,"columnNumber":?},"id":?,"parent":?}, ...],"samples":[...]},"timeDeltas":[...],"lines":[...]}}}`
-- information: ??
-
-### jsEventListeners
-- format:`{"pid":5301,"tid":5318,"ts":354565003612,"ph":"I","cat":"disabled-by-default-devtools.timeline","name":"UpdateCounters","s":"t","tts":530432847,"args":{"data":{"documents":1,"nodes":58,"jsEventListeners":35,"jsHeapSizeUsed":7379624}}}`
+### Metadata
+- Process Metadata
+  - ph: `M`
+  - cat: `__metadata`
+  - info:
+    - CPU number (task name:`num_cpus`) 
+    - process information (task name:`process_sort_index`/`process_name`/`process_uptime_seconds`/`process_labels` )
+    - library information (task name:`chrome_library_address`/`chrome_library_module`)
+- Thread Metadata
+  - thread: the corresponding thread
+  - task name: `thread_name`
+  - ph: `M`
+  - cat: `__metadata`
+  - info:
+    - thread name
 
 ### Profiler Timeline Tracks
 
