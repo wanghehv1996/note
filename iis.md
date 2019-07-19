@@ -21,74 +21,78 @@ default rootpath is at `C:\inetpub\wwwroot`
 
 ## Process
 
-- Browser
-  - threads
-    - AudioThread(/)
-    - Chrome_HistoryThread(/)
-    - ThreadPoolServiceThread(RunTask)
-    - BrowserWatchdog(/)
-    - Chrome_DevToolsHandlerThread(RunTask)
-    - CrBrowserMain(TracingStartedInBrowser, RunTask, Screenshot, InputLatency::TouchStart/TouchMove/TouchEnd, LatencyInfo.Flow)
-    - Chrome_IOThread(RunTask(rare))
+- Process: Browser
+  - AudioThread
+  - Chrome_HistoryThread
+  - ThreadPoolServiceThread
+  - BrowserWatchdog
+  - Chrome_DevToolsHandlerThread
+  - CrBrowserMain
+    - TracingStartedInBrowser
+    - Screenshot
+    - InputLatency::TouchStart/TouchMove/TouchEnd...
+  - Chrome_IOThread
 
-- GPU Process
-  - threads
-    - CrGpuMain(GPUTask, RunTask)
-    - VizCompositorThread(RunTask)
-    - Watchdog(RunTask(rare))
-    - Chrome_ChildIOThread(RunTask(rare))
-    - ThreadPoolServiceThread(RunTask(rare))
+- Process: GPU Process
+  - CrGpuMain
+    - GPUTask
+  - VizCompositorThread
+  - Watchdog
+  - Chrome_ChildIOThread
+  - ThreadPoolServiceThread
 
-- Renderer
-  - threads
-    - Chrome_ChildIOThread(RunTask)
-    - ThreadPoolServiceThread(/)
-    - Media(/)
-    - Compositor/5323(5323 is the tid. RunTask/ActivateLayerTree/BeginFrame/RequestMainThreadFrame/DrawFrame)
-    - CrRenderMain
-      - // normal
-      - RequestAnimationFrame
-      - FunctionCall
-      - UpdateCounters
-      - FireAnimationFrame
-      - SetLayerTreeId
-      - UpdateLayerTree
-      - UpdateLayer
-      - CompositeLayers
-      - RunTask
-      - BeginMainThreadFrame
-      - Profile
-      - V8.InvokeApiInterruptCallbacks
-      - V8.HandleInterrupts
-      - V8.StackGuard
-      - // request
-      - XHRReadyStateChange
-      - PlatformResourceSendRequest
-      - ResourceSendRequest
-      - requestStart
-      - ResourceReceiveResponse
-      - ResourceReceivedData
-      - XHRLoad
-      - ResourceFinish
+- Process: Renderer
+  - Chrome_ChildIOThread
+  - ThreadPoolServiceThread
+  - Media
+  - Compositor/5323(5323 is the tid)
+    - ActivateLayerTree
+    - BeginFrame
+    - RequestMainThreadFrame
+    - DrawFrame
+  - CrRenderMain
+    - // normal
+    - RequestAnimationFrame
+    - FunctionCall
+    - UpdateCounters
+    - FireAnimationFrame
+    - SetLayerTreeId
+    - UpdateLayerTree
+    - UpdateLayer
+    - CompositeLayers
+    - BeginMainThreadFrame
+    - Profile
+    - V8.InvokeApiInterruptCallbacks
+    - V8.HandleInterrupts
+    - V8.StackGuard
+    - // request
+    - XHRReadyStateChange
+    - PlatformResourceSendRequest
+    - ResourceSendRequest
+    - requestStart
+    - ResourceReceiveResponse
+    - ResourceReceivedData
+    - XHRLoad
+    - ResourceFinish
 
 ## Timestamp
-- start time = first RunTask finished time
+- start time = first `RunTask.ts`
 
 ## Performance profile json file
 
-- basic format
-  - pid: The process ID for the process that output this event.
-  - tid: The thread ID for the thread that output this event.
-  - ts: The **tracing clock timestamp** of the event. The timestamps are provided at microsecond granularity. 
-  - ph: The event type. This is a single character which changes depending on the type of event being output. The valid values are listed in the table below. We will discuss each phase type below.
-  - cat: The event categories. This is a comma separated list of categories for the event. The categories can be used to hide events in the Trace Viewer UI.
-  - name: The name of the event, as displayed in Trace Viewer
-  - args: Any arguments provided for the event. Some of the event types have required argument fields, otherwise, you can put any information you wish in here. The arguments are displayed in Trace Viewer when you view an event in the analysis section.
-  - dur: duration | Total Time，There is an extra parameter dur to specify the **tracing clock** duration of complete events in microseconds.
-  - tdur: An optional parameter tdur specifies the **thread clock** duration of complete events in microseconds.
-  - tts: Optional. The **thread clock timestamp** of the event. The timestamps are provided at microsecond granularity.
+### basic format
+- `pid`: The process ID for the process that output this event.
+- `tid`: The thread ID for the thread that output this event.
+- `ts`: The **tracing clock timestamp** of the event. The timestamps are provided at microsecond granularity. 
+- `ph`: The event type. This is a single character which changes depending on the type of event being output. The valid values are listed in the table below. We will discuss each phase type below.
+- `cat`: The event categories. This is a comma separated list of categories for the event. The categories can be used to hide events in the Trace Viewer UI.
+- `name`: The name of the event, as displayed in Trace Viewer
+- `args`: Any arguments provided for the event. Some of the event types have required argument fields, otherwise, you can put any information you wish in here. The arguments are displayed in Trace Viewer when you view an event in the analysis section.
+- `dur`: duration | Total Time，There is an extra parameter dur to specify the **tracing clock** duration of complete events in microseconds.
+- `tdur`: An optional parameter tdur specifies the **thread clock** duration of complete events in microseconds.
+- `tts`: Optional. The **thread clock timestamp** of the event. The timestamps are provided at microsecond granularity.
 
-
+<!-- 
 - send request
   - format: 
     - begin/PlatformResourceSendRequest: `{"pid":5301,"tid":5318,"ts":354567407000,"ph":"B","cat":"devtools.timeline","name":"PlatformResourceSendRequest","tts":531237291,"args":{"data":{"id":"48"}}}`
@@ -167,110 +171,133 @@ default rootpath is at `C:\inetpub\wwwroot`
     First Invalidated
     __proto.load	@	192.168.1.43/starter2d/libs/laya.core.js:24128
 
-  - pending for = finishloading.ts-ResourceSendRequest.ts
+  - pending for = finishloading.ts-ResourceSendRequest.ts -->
 
-- snapshot
-  - format: `{"pid":???,"tid":???,"ts":???,"ph":"O","cat":"disabled-by-default-devtools.screenshot","name":"Screenshot","id":"0x1","tts":???,"args":{"snapshot":"???"}}`
-  - Image format: base64
+### snapshot
+- format: `{"pid":???,"tid":???,"ts":???,"ph":"O","cat":"disabled-by-default-devtools.screenshot","name":"Screenshot","id":"0x1","tts":???,"args":{"snapshot":"???"}}`
+- Image format: base64
 
-- metadata
-  - format: `{"pid":???,"tid":???,"ts":???,"ph":"M","cat":"__metadata","name":"???","args":???}`
-  - information: CPU number, process information, chrome library information, thread information
+### metadata
+- format: `{"pid":???,"tid":???,"ts":???,"ph":"M","cat":"__metadata","name":"???","args":???}`
+- information: CPU number, process information, chrome library information, thread information
   
-- profiler
-  - format: `{"pid":???,"tid":???,"ts":???,"ph":"P","cat":"disabled-by-default-v8.cpu_profiler","name":"ProfileChunk","id":"???","tts":???,"args":{"data":{"cpuProfile":{"nodes":[{"callFrame":{"functionName":"???","url":"???","scriptId":?,"lineNumber":?,"columnNumber":?},"id":?,"parent":?}, ...],"samples":[...]},"timeDeltas":[...],"lines":[...]}}}`
-  - information: ??
+### profiler
+- format: `{"pid":???,"tid":???,"ts":???,"ph":"P","cat":"disabled-by-default-v8.cpu_profiler","name":"ProfileChunk","id":"???","tts":???,"args":{"data":{"cpuProfile":{"nodes":[{"callFrame":{"functionName":"???","url":"???","scriptId":?,"lineNumber":?,"columnNumber":?},"id":?,"parent":?}, ...],"samples":[...]},"timeDeltas":[...],"lines":[...]}}}`
+- information: ??
 
-- jsEventListeners & jsEventListeners
-  - format:`{"pid":5301,"tid":5318,"ts":354565003612,"ph":"I","cat":"disabled-by-default-devtools.timeline","name":"UpdateCounters","s":"t","tts":530432847,"args":{"data":{"documents":1,"nodes":58,"jsEventListeners":35,"jsHeapSizeUsed":7379624}}}`
+### jsEventListeners
+- format:`{"pid":5301,"tid":5318,"ts":354565003612,"ph":"I","cat":"disabled-by-default-devtools.timeline","name":"UpdateCounters","s":"t","tts":530432847,"args":{"data":{"documents":1,"nodes":58,"jsEventListeners":35,"jsHeapSizeUsed":7379624}}}`
 
-- Profiler GUI
-  - Interactions->Input
-    - Mouse Up/Down/Leave, Key Up/Down
-      - task name: InputLatency
-      - ph: F/S
-      - duration: task(ph=F).ts-task(ph=F).data.INPUT_EVENT_LATENCY_ORIGINAL_COMPONENT.time
-      - (note: Mouse Up/Down/Leave in thread BrowserMainThread/CompositorThread; Mouse Move in VizCompositorThread)
-  - Interactions->Animation
-    - Animation
-      - task name: animation
-      - ph: F/S
-      - duration: task(ph=b).ts-task(ph=e).ts
-  - Timings
-    - First Paint(FP)
-      - task name: FirstPaint
-      - ph: R
-    - First Contentful Paint(FCP)
-      - task name: FirstContentPaint
-      - ph: R
-    - First Meaningful Paint(FMP)
-      - task name: firstMeaningfulPaint
-      - ph: R
-    - DOM Content Loaded(DCL)
-      - task name: MarkDOMContent
-      - ph: I 
-    - Onload Event(L)
-      - task name: markLoad
-      - ph: I
-  - Main
-    - Task
-      - task name: RunTask
-      - TODO:
-  - Raster/Rasterizer Thread 12345
-    - Rasterize Paint
-      - task name: RasterTask
-      - ph: B/E
-      - duration: task(ph=E).ts-task(ph=B).ts
+### Profiler Timeline Tracks
+
+- Interactions->Input
+  - Mouse Up/Down/Leave/Move, Touch Start/End, Key Up/Down
+    - thread: `Browser->BrowserMainThread / Renderer->CompositorThread / GPU Process->VizCompositorThread`
+    - task name: `InputLatency::MouseUp/Down/...`
+    - ph: `F/S`
+    - duration: task(ph=F).ts-task(ph=F).data.INPUT_EVENT_LATENCY_ORIGINAL_COMPONENT.time
+    - (note: Mouse Up/Down/Leave in thread BrowserMainThread/CompositorThread; Mouse Move in VizCompositorThread)
+
+- Interactions->Animation
+  - Animation
+    - thread: `Renderer->CrRendererMain`
+    - task name: `Animation`
+    - ph: `b/e`
+    - duration: task(ph=b).ts-task(ph=e).ts
+
+- Timings
+  - note: `Renderer(main)` is a `Renderer` process with a `CompositorTileWorkerBackground` thread 
+  - First Paint(FP)
+    - thread: `Renderer(main) -> CrRendererMain`
+    - task name: `firstPaint`
+    - ph: `R`
+  - First Contentful Paint(FCP)
+    - thread: `Renderer(main) -> CrRendererMain`
+    - task name: `firstContentfulPaint`
+    - ph: `R`
+  - First Meaningful Paint(FMP)
+    - thread: `Renderer(main) -> CrRendererMain`
+    - task name: `firstMeaningfulPaint`
+    - ph: `R`
+  - DOM Content Loaded(DCL)
+    - thread: `Renderer(main) -> CrRendererMain`
+    - task name: `MarkDOMContent`
+    - ph: `I`
+    - (note: only show the first one after `FP`) 
+  - Onload Event(L)
+    - thread: `Renderer(main) -> CrRendererMain`
+    - task name: `MarkLoad`
+    - ph: `I`
+    - (note: only show the last one) 
+
+- Main
+  - TODO:
+
+- Raster
+  - (note: multi sub-track for each `Rasterizer Thread 1/2/3`)
+  - Rasterize Paint
+    - thread: `Renderer -> CompositorTileWorker` / `Renderer ->  CompositorTileWorkerBackground`
+    - task name: `RasterTask`
+    - ph: `B/E`
+    - duration: task(ph=E).ts-task(ph=B).ts
+  - Image Decode
+    - task name: `ImageDecodeTask`
+    - ph: `B/E`
+    - duration: task(ph=E).ts-task(ph=B).ts
+
+- GPU
   - GPU
-    - GPU
-      - task name: GPUTask
-      - ph: X
-      - duration: task.dur
-  - Chrome_ChildIOThread
-    - Task
-      - task name: RunTask (note: only the task in `Renderer -> Chrome_ChildIOThread`)
-      - ph: X
-      - duration: task.dur
-  - Compositor/[pid]
-    - Task
-      - task name: RunTask (note: only the task in `Renderer -> Compositor` thread with corresponding [pid])
-      - ph: X
-      - duration: task.dur
-  - GPUMemoryTask
-    - Task
-      - task name: RunTask (note: only the task in `Renderer -> GPUMemoryThread`)
-      - ph: X
-      - duration: task.dur
-  - ThreadPoolServiceThread
-    - Task
-      - task name: RunTask (note: only the task in `Renderer -> ThreadPoolServiceThread`)
-      - ph: X
-      - duration: task.dur
+    - thread: `GPU Process -> CrGpuMain`
+    - task name: `GPUTask`
+    - ph: `X`
+    - duration: task.dur
 
+- Chrome_ChildIOThread
+  - Task
+    - thread: `Renderer -> Chrome_ChildIOThread`
+    - task name: `RunTask`
+    - ph: `X`
+    - duration: task.dur
 
-  - JS heap, Documents, Nodes, Listeners
-    - task name: UpdateCounters
-    - timestamp: task(ph=I).ts
-    - data: args.data
-  
-  - Network
-    - Network request
-      - task name: ResourceSendRequest / ResourceFinish (note: with same `requestId`)
-      - timestamp: ResourceSendRequest.ts
-      - duration: ResourceFinish.ts - ResourceSendRequest.ts
-      - detail:
+- Compositor/[pid]
+  - Task
+    - thread: `Renderer -> Compositor` with corresponding [pid])
+    - task name: `RunTask` 
+    - ph: `X`
+    - duration: task.dur
 
-```
-    --ResourceSendRequest.ts
-    |
-    o--requestStart.ts
-    o
-    o
-    0--ResourceReceiveResponse.requestTime+ResourceReceiveResponse.receiveHeadersEnd
-    0
-    0
-    0
-    |--ResourceFinish.finishTime
-    |
-    --ResourceFinish.ts
-```
+- GPUMemoryTask
+  - Task
+    - thread: `Renderer -> GPUMemoryThread`
+    - task name: `RunTask`
+    - ph: `X`
+    - duration: task.dur
+
+- ThreadPoolServiceThread
+  - Task
+    - thread: `Renderer -> ThreadPoolServiceThread`
+    - task name: `RunTask` 
+    - ph: `X`
+    - duration: task.dur
+
+- JS heap, Documents, Nodes, Listeners
+  - thread: `Renderer(main) -> CrRendererMain`
+  - task name: `UpdateCounters`
+  - timestamp: task(ph=I).ts
+  - data: args.data
+
+- Network
+  - Network request
+    - thread: `Renderer -> CrRendererMain`
+    - task name: `ResourceSendRequest` / `ResourceReceiveResponse` / `ResourceFinish`
+    - Request
+      ```
+      |----░░░░░▒▒▒▒▒▒----|
+      1    2    3    4    5
+      ```
+      - timestamp 1: `ResourceSendRequest.ts`
+      - timestamp 2: `ResourceReceiveResponse.timing.requestTime` + `ResourceReceiveResponse.timing.sendStart`
+      - timestamp 3: `ResourceReceiveResponse.timing.requestTime` + `ResourceReceiveResponse.timing.receiveHeadersEnd`
+      - timestamp 4: `ResourceFinish.timing.finishTime`
+      - timestamp 5: `ResourceFinish.ts`
+  - 
